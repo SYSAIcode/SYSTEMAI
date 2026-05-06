@@ -2769,7 +2769,6 @@ footer {
 }
 .hero__bg-gradient { z-index: 1; }
 .hero__inner { z-index: 2; position: relative; }
-@media (max-width: 768px) and (orientation: portrait) { .hero__video-bg { display: none; } }
 @media (prefers-reduced-motion: reduce) { .hero__video-el { display: none; } }
 
 /* ══════════════════════════════════════════════════════════════
@@ -3006,89 +3005,71 @@ footer {
 [data-theme="dark"] .tl-check.is-checked .tl-check__box { background: rgba(74,222,128,0.1) !important; border-color: rgba(74,222,128,0.6) !important; color: #4ade80 !important; }
 
 /* ============================================================
-   AJUSTES MÓVIL — portrait / proporciones / mejoras
-   Todos los cambios de este bloque son SOLO para móvil.
-   El desktop no se modifica.
+   AJUSTES MÓVIL — proporciones / servicios / scroll / mejoras
+   Solo para móvil. El desktop no se modifica.
    ============================================================ */
 
-/* 1. Preloader — vídeo landscape en pantalla portrait */
-@media (max-width: 768px) and (orientation: portrait) {
-  .preloader__video {
-    object-fit: contain;
-    object-position: center center;
-    background: #0f0f12;
-  }
-}
+/* 1. Hero — vídeo visible en portrait y landscape */
+/* object-fit: cover aplica en todos los formatos sin override */
 
-/* 2. Hero — fondo de sustitución en portrait (sin vídeo) */
-@media (max-width: 768px) and (orientation: portrait) {
-  .hero {
-    background:
-      radial-gradient(ellipse 90% 55% at 50% 0%, rgba(138,20,40,0.22) 0%, transparent 68%),
-      var(--bg);
-  }
-}
-
-/* 3. Hero — landscape móvil: vídeo visible y altura mínima */
+/* 2. Hero — landscape estrecho: altura mínima y opacidad del vídeo */
 @media (max-width: 768px) and (orientation: landscape) {
-  .hero {
-    min-height: 100svh;
-    padding-top: 4rem;
-  }
+  .hero { min-height: 100svh; padding-top: 4rem; }
   .hero__video-el { opacity: 0.42; }
 }
 
-/* 4. Proporciones generales — pantallas ≤480px */
+/* 3. Proporciones generales — pantallas ≤480px */
 @media (max-width: 480px) {
   :root { --section-pad: 3rem 1rem; }
-
   .hero__title        { font-size: clamp(1.75rem, 7.5vw, 2.4rem) !important; }
   .hero__sub          { font-size: 0.88rem; }
   .hero__eyebrow      { font-size: 0.7rem; }
   .hero__trust        { font-size: 0.78rem; }
-
   .section__title     { font-size: clamp(1.4rem, 6vw, 2rem) !important; }
   .section__lead      { font-size: 0.88rem; }
   .section__eyebrow   { font-size: 0.68rem; }
-
-  .btn-primary, .btn-secondary {
-    padding: 0.7rem 1.4rem;
-    font-size: 0.88rem;
-  }
-
+  .btn-primary, .btn-secondary { padding: 0.7rem 1.4rem; font-size: 0.88rem; }
   .why-card           { padding: 1.2rem; }
   .why-card h3        { font-size: 0.98rem; }
   .why-card p         { font-size: 0.83rem; }
   .why-card__icon     { width: 40px; height: 40px; font-size: 1.1rem; }
-
   .pin-slide h3       { font-size: 1.25rem; }
   .pin-slide p        { font-size: 0.88rem; }
   .pin-slide ul li    { font-size: 0.83rem; }
   .step-number        { font-size: 3rem; }
-
   .mini-stat__num     { font-size: 1.6rem; }
   .mini-stat__label   { font-size: 0.72rem; }
 }
 
-/* 5. Pinned slides — separación visual entre slides en móvil */
+/* 4. Sección servicios — demos dinámicas insertadas por JS debajo del texto */
 @media (max-width: 1023px) {
   .pin-slides { display: flex; flex-direction: column; gap: 0; }
-  .pin-slide  { padding: 2.5rem 1rem; border-top: 1px solid var(--border-light); }
+  .pin-slide  { padding: 2.5rem 1rem; border-top: 1px solid var(--border-light); min-height: unset; }
   .pin-slide:first-child { border-top: none; }
-  .pin-slide__mobile-media {
+  .pin-slide__mobile-media { display: none !important; }
+  /* Demos movidas dentro de cada slide por JS */
+  .pin-slide .pin-video-item {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 280px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
     border-radius: var(--radius);
     overflow: hidden;
-    aspect-ratio: 16/10;
-    background: var(--surface-2);
+    margin-top: 1.5rem;
   }
-  .pin-slide__mobile-media video { width: 100%; height: 100%; object-fit: cover; }
+  .pin-slide .pin-video-item.is-active { opacity: 1; }
+  .pin-slide .pin-flow-sim,
+  .pin-slide .pin-chat-sim,
+  .pin-slide .pin-timeline-sim { height: 100%; overflow-y: auto; }
 }
 
-/* 6. Founder — foto más pequeña y centrada en móvil */
+/* 5. Founder — eyebrow + nombre arriba, foto abajo, tamaño reducido */
 @media (max-width: 768px) {
   .founder__inner {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     align-items: center;
     gap: 2rem;
   }
@@ -3097,33 +3078,19 @@ footer {
     margin: 0 auto !important;
     aspect-ratio: 3/4;
   }
-  .founder__photo-glow {
-    width: min(calc(100% + 12px), 192px);
-  }
-  .founder__photo-badge {
-    bottom: -0.75rem;
-    right: -0.5rem;
-    font-size: 0.72rem;
-    padding: 0.55rem 0.9rem;
-  }
-  .founder__quote {
-    font-size: 1rem;
-    padding-left: 1rem;
-  }
+  .founder__photo-glow { width: min(calc(100% + 12px), 192px); }
+  .founder__photo-badge { bottom: -0.75rem; right: -0.5rem; font-size: 0.72rem; padding: 0.55rem 0.9rem; }
+  .founder__quote { font-size: 1rem; padding-left: 1rem; }
   .founder__name { font-size: clamp(1.4rem, 6vw, 2rem); }
 }
 
-/* 7. CTA bar fija inferior en móvil */
-.mobile-cta-bar {
-  display: none;
-}
+/* 6. CTA bar fija inferior en móvil */
+.mobile-cta-bar { display: none; }
 @media (max-width: 768px) {
   .mobile-cta-bar {
     display: flex;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 0; left: 0; right: 0;
     z-index: 990;
     padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
     gap: 0.75rem;
@@ -3132,6 +3099,7 @@ footer {
     -webkit-backdrop-filter: blur(12px);
     border-top: 1px solid rgba(255,255,255,0.08);
     align-items: center;
+    transition: opacity 0.3s ease;
   }
   [data-theme="light"] .mobile-cta-bar {
     background: rgba(248,248,250,0.97);
@@ -3152,7 +3120,7 @@ footer {
     cursor: pointer;
     border: none;
     min-height: 48px;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease;
   }
   .mobile-cta-bar__btn:active { transform: scale(0.97); }
   .mobile-cta-bar__btn--primary {
@@ -3168,11 +3136,10 @@ footer {
     border-radius: var(--radius-sm);
     box-shadow: 0 4px 16px rgba(37,211,102,0.35);
   }
-  /* Empujar el footer y contenido para que no quede tapado */
   body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
 }
 
-/* 8. Ocultar barra de progreso de scroll en landscape estrecho */
+/* 7. Landscape muy estrecho — ocultar elementos secundarios */
 @media (max-width: 768px) and (orientation: landscape) and (max-height: 450px) {
   .scroll-indicator { display: none; }
   .hero__pills { display: none; }
@@ -3931,13 +3898,15 @@ function initPageAnimations() {
   if (heroPills) herTl.to(heroPills, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.15');
 
   // Scroll reveal [B]
+  const isMob = window.innerWidth < 768;
   const reveals = document.querySelectorAll('.reveal');
   reveals.forEach((el) => {
     ScrollTrigger.create({
       trigger: el,
-      start: 'top 88%',
-      onEnter:     () => el.classList.add('is-visible'),
-      onLeaveBack: () => el.classList.remove('is-visible'),
+      start: isMob ? 'top 99%' : 'top 88%',
+      once: isMob,
+      onEnter: () => el.classList.add('is-visible'),
+      onLeaveBack: isMob ? undefined : () => el.classList.remove('is-visible'),
     });
   });
 
@@ -4714,27 +4683,34 @@ function navigateToGracias() {
   });
 })();
 
-// ── MÓVIL: vídeos de servicios — play al entrar, pause+reset al salir ──
-(function initMobileSlideVideos() {
+// ── MÓVIL: demos dinámicas — mover cada demo dentro de su slide y activar por viewport ──
+(function initMobileServices() {
   if (window.innerWidth >= 1024) return;
-  const videos = document.querySelectorAll('.pin-slide__mobile-media video');
-  if (!videos.length) return;
+  const slides     = document.querySelectorAll('.pin-slide');
+  const mediaItems = document.querySelectorAll('.pin-video-item');
+  if (!slides.length || !mediaItems.length) return;
+
+  // Mover cada demo al final de su slide correspondiente
+  mediaItems.forEach((media, i) => {
+    media.classList.remove('is-active');
+    if (slides[i]) slides[i].appendChild(media);
+  });
+
+  // Activar la demo cuando entre en el viewport y desactivar al salir
   const obs = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      const v = entry.target;
       if (entry.isIntersecting) {
-        v.currentTime = 0;
-        v.play().catch(() => {});
+        // Desactivar todas y activar solo la visible
+        mediaItems.forEach(m => m.classList.remove('is-active'));
+        entry.target.classList.add('is-active');
       } else {
-        v.pause();
-        v.currentTime = 0;
+        entry.target.classList.remove('is-active');
       }
     });
-  }, { threshold: 0.35 });
-  videos.forEach((v) => {
-    v.autoplay = false;
-    obs.observe(v);
-  });
+  }, { threshold: 0.3 });
+
+  // Observar los items ya movidos
+  document.querySelectorAll('.pin-slide .pin-video-item').forEach(v => obs.observe(v));
 })();
 
 // ── MÓVIL: CTA bar — ocultar en la zona del formulario para no tapar ──
@@ -4769,3 +4745,4 @@ function navigateToGracias() {
 
 </body>
 </html>
+
