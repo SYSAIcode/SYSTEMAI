@@ -564,6 +564,69 @@ footer {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Cursor radar */
+@keyframes radar-pulse { 0%{transform:translate(-50%,-50%) scale(1);opacity:.55} 70%{transform:translate(-50%,-50%) scale(1.55);opacity:0} 100%{transform:translate(-50%,-50%) scale(1.55);opacity:0} }
+@keyframes radar-spin  { to{transform:translate(-50%,-50%) rotate(360deg)} }
+.cursor-dot {
+  position:fixed; width:6px; height:6px; background:var(--primary); border-radius:50%;
+  pointer-events:none; z-index:10000; left:0; top:0; transform:translate(-50%,-50%);
+  transition:width .2s,height .2s,opacity .3s,box-shadow .3s; opacity:0; will-change:left,top;
+}
+.cursor-dot.is-visible { opacity:1; }
+.cursor-dot.is-hover   { width:8px; height:8px; box-shadow:0 0 10px rgba(var(--primary-rgb),.8); }
+.cursor-ring {
+  position:fixed; width:34px; height:34px; border:1.5px solid rgba(var(--primary-rgb),.40);
+  border-radius:50%; pointer-events:none; z-index:9999; left:0; top:0; transform:translate(-50%,-50%);
+  transition:width .35s cubic-bezier(.34,1.56,.64,1),height .35s cubic-bezier(.34,1.56,.64,1),border-color .3s,box-shadow .3s,opacity .3s;
+  opacity:0; will-change:left,top;
+}
+.cursor-ring::before { content:''; position:absolute; top:50%; left:50%; width:50%; height:1.5px; background:linear-gradient(90deg,rgba(var(--primary-rgb),.7),transparent); transform-origin:left center; transform:rotate(0deg); border-radius:2px; opacity:0; transition:opacity .3s; }
+.cursor-ring::after  { content:''; position:absolute; inset:0; border-radius:50%; border:1px solid rgba(var(--primary-rgb),.30); opacity:0; transition:opacity .3s; }
+.cursor-ring.is-visible { opacity:1; }
+.cursor-ring.is-hover   { width:52px; height:52px; border-color:rgba(var(--primary-rgb),.70); box-shadow:0 0 14px rgba(var(--primary-rgb),.35),inset 0 0 8px rgba(var(--primary-rgb),.08); }
+.cursor-ring.is-hover::before { opacity:1; animation:radar-spin 1.8s linear infinite; }
+.cursor-ring.is-hover::after  { opacity:1; animation:radar-pulse 2s ease-out infinite; }
+@media (pointer: coarse) { .cursor-dot, .cursor-ring { display: none; } }
+
+/* Glass + glow en step-cards */
+.step-card { backdrop-filter:blur(8px) saturate(140%); -webkit-backdrop-filter:blur(8px) saturate(140%); }
+.step-card:hover {
+  border-color: rgba(var(--primary-rgb),.28) !important;
+  box-shadow: 0 0 0 1px rgba(var(--primary-rgb),.14), 0 12px 40px rgba(var(--primary-rgb),.14), inset 0 1px 0 rgba(255,255,255,.12) !important;
+}
+
+/* Shimmer en botón CTA */
+@keyframes shimmer { from{transform:translateX(-120%)} to{transform:translateX(120%)} }
+.btn-primary { overflow:hidden; }
+.btn-primary::after { content:''; position:absolute; inset:0; background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.22) 50%,transparent 70%); transform:translateX(-120%); pointer-events:none; }
+.btn-primary:hover::after { animation:shimmer .65s ease forwards; }
+
+/* ============================================================
+   AJUSTES MÓVIL — proporciones y escalado
+   ============================================================ */
+@media (max-width: 480px) {
+  :root {
+    --section-pad: 2.5rem 1rem;
+  }
+  h1, .confirm-title   { font-size: clamp(1.6rem, 7vw, 2.2rem) !important; }
+  h2                   { font-size: clamp(1.2rem, 5.5vw, 1.6rem) !important; }
+  p, li                { font-size: 0.88rem !important; }
+  .confirm-subtitle    { font-size: 0.88rem !important; }
+  .btn-primary         { padding: 0.7rem 1.4rem; font-size: 0.88rem; width: 100%; justify-content: center; }
+  .step-card           { padding: 1.2rem !important; }
+  .step-card__num      { font-size: 1.4rem !important; }
+  .step-card__title    { font-size: 0.92rem !important; }
+  .step-card__desc     { font-size: 0.82rem !important; }
+  .logo-float img      { height: 36px !important; }
+}
+
+@media (max-width: 768px) {
+  .confirm-hero        { padding: 4rem 1rem 3rem; }
+  .confirm-icon        { width: 56px !important; height: 56px !important; }
+  .steps-grid          { grid-template-columns: 1fr !important; gap: 1rem !important; }
+  .cta-block           { padding: 2rem 1rem !important; }
+}
 </style>
 </head>
 <body>
@@ -571,10 +634,12 @@ footer {
 <canvas id="neural-canvas-g" aria-hidden="true"></canvas>
 <div class="noise-overlay" aria-hidden="true"></div>
 <div class="garnet-ambient" aria-hidden="true"></div>
+<div class="cursor-dot" aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true"></div>
 
 <!-- Logo — arriba izquierda -->
 <a href="landing.html" class="logo-float" aria-label="SYSTEM AI — volver">
-  <img src="assets/Logo_SYSTEMAI.png" alt="SYSTEM AI" loading="eager">
+  <img src="Logo_SYSTEMAI.png" alt="SYSTEM AI" loading="eager">
 </a>
 
 <!-- Toggle — arriba derecha -->
@@ -707,7 +772,7 @@ window.addEventListener('load', () => {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let w, h, particles;
-  const COUNT    = 80;
+  const COUNT    = 50;
   const MAX_DIST = 120;
   const PRIMARY  = '171,26,53';
 
@@ -796,6 +861,33 @@ window.addEventListener('load', () => {
     const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
     localStorage.setItem('systemai-theme', next);
+  });
+})();
+
+// ── CURSOR RADAR ──────────────────────────────────────────────
+(function initCursor() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const dot  = document.querySelector('.cursor-dot');
+  const ring = document.querySelector('.cursor-ring');
+  if (!dot || !ring) return;
+
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', (e) => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left  = mx + 'px'; dot.style.top  = my + 'px';
+    dot.classList.add('is-visible'); ring.classList.add('is-visible');
+  }, { passive: true });
+
+  (function lerp() {
+    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(lerp);
+  })();
+
+  const hoverTargets = 'a,button,[data-tilt],.step-card';
+  document.querySelectorAll(hoverTargets).forEach(el => {
+    el.addEventListener('mouseenter', () => { dot.classList.add('is-hover'); ring.classList.add('is-hover'); });
+    el.addEventListener('mouseleave', () => { dot.classList.remove('is-hover'); ring.classList.remove('is-hover'); });
   });
 })();
 </script>
