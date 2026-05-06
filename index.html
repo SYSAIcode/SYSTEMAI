@@ -240,6 +240,17 @@ ul { list-style: none; }
 /* ============================================================
    NOISE OVERLAY
    ============================================================ */
+/* Page transition overlay */
+.page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--surface-2);
+  transform: scaleY(0);
+  transform-origin: bottom center;
+  pointer-events: none;
+}
+
 .noise-overlay {
   position: fixed;
   inset: 0;
@@ -1003,12 +1014,24 @@ body::after {
   pointer-events: none;
 }
 .urgency__inner {
-  max-width: 800px;
+  max-width: var(--max-w);
   margin: 0 auto;
-  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  text-align: left;
   position: relative;
   z-index: 1;
 }
+@media (min-width: 768px) {
+  .urgency__inner {
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 5rem;
+    align-items: center;
+  }
+}
+.urgency__content { display: flex; flex-direction: column; align-items: flex-start; }
+.urgency__stats-col { display: flex; flex-direction: column; align-items: center; }
 .urgency__quote {
   font-family: var(--font-head);
   font-size: clamp(1.5rem, 4vw, 2.8rem);
@@ -1133,7 +1156,8 @@ body::after {
    ============================================================ */
 .founder {
   padding: var(--section-pad);
-  background: var(--surface);
+  background: var(--bg);
+  position: relative;
 }
 .founder__inner {
   max-width: var(--max-w);
@@ -1142,9 +1166,15 @@ body::after {
   grid-template-columns: 1fr;
   gap: 3rem;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }
 @media (min-width: 768px) {
-  .founder__inner { grid-template-columns: 1fr 1.5fr; gap: 5rem; }
+  .founder__inner {
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 5rem;
+    align-items: center;
+  }
 }
 .founder__photo-wrap {
   position: relative;
@@ -1812,36 +1842,26 @@ footer {
   .topbar-mini { top: 0.75rem; right: 1rem; }
 }
 
-/* Founder — rectangular portrait photo, sized to fit section */
-.founder__inner {
-  align-items: center !important;
-}
-.founder__photo-wrap {
-  height: auto;
-}
+/* Founder — foto */
+.founder__photo-wrap { height: auto; }
 .founder__photo {
-  border-radius: var(--radius) !important;
-  aspect-ratio: 3/4 !important;
-  width: 100% !important;
-  max-width: 300px;
-  height: auto !important;
+  border-radius: var(--radius);
+  aspect-ratio: 3/4;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
   margin: 0 auto;
-  border: 1px solid var(--border-light) !important;
+  border: 1px solid var(--border-light);
   box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  overflow: hidden;
 }
-.founder__photo img {
-  filter: grayscale(20%);
-  transition: filter 0.5s ease;
-}
+.founder__photo img { filter: grayscale(20%); transition: filter 0.5s ease; }
 .founder__photo:hover img { filter: grayscale(0); }
 .founder__photo-glow {
   position: absolute;
-  /* Alinear al foto (max-width: 300px, margin: 0 auto) */
-  top: -6px;
-  bottom: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(calc(100% + 12px), 312px);
+  top: -6px; bottom: -6px;
+  left: 50%; transform: translateX(-50%);
+  width: min(calc(100% + 12px), 352px);
   background: var(--primary);
   border-radius: var(--radius);
   filter: blur(0.8rem);
@@ -1850,9 +1870,6 @@ footer {
   pointer-events: none;
 }
 .founder__photo-wrap:hover .founder__photo-glow { opacity: 0.22; }
-@media (min-width: 768px) {
-  .founder__inner { grid-template-columns: 1fr 1.5fr !important; }
-}
 
 /* ============================================================
    HERO — gradient parallax transition
@@ -1994,10 +2011,9 @@ footer {
    ============================================================ */
 .urgency-stats {
   display: flex;
-  justify-content: center;
-  gap: 2.5rem 3.5rem;
-  flex-wrap: wrap;
-  margin: 2rem auto 2.5rem;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
 }
 .urgency-stat { text-align: center; }
 .urgency-stat .counter {
@@ -2129,6 +2145,15 @@ footer {
 @media (pointer: fine) {
   body, a, button, [data-tilt] { cursor: none !important; }
 }
+/* Cursor radar IA */
+@keyframes radar-pulse {
+  0%   { transform: translate(-50%,-50%) scale(1);   opacity: 0.55; }
+  70%  { transform: translate(-50%,-50%) scale(1.55); opacity: 0; }
+  100% { transform: translate(-50%,-50%) scale(1.55); opacity: 0; }
+}
+@keyframes radar-spin {
+  to { transform: translate(-50%,-50%) rotate(360deg); }
+}
 .cursor-dot {
   position: fixed;
   width: 6px; height: 6px;
@@ -2138,27 +2163,65 @@ footer {
   z-index: 10000;
   left: 0; top: 0;
   transform: translate(-50%, -50%);
-  transition: width 0.2s, height 0.2s, opacity 0.3s;
+  transition: width 0.2s, height 0.2s, opacity 0.3s, box-shadow 0.3s;
   opacity: 0;
   will-change: left, top;
 }
 .cursor-dot.is-visible  { opacity: 1; }
-.cursor-dot.is-hover    { width: 10px; height: 10px; }
+.cursor-dot.is-hover    { width: 8px; height: 8px; box-shadow: 0 0 10px rgba(var(--primary-rgb),0.8); }
 .cursor-ring {
   position: fixed;
-  width: 30px; height: 30px;
-  border: 1px solid rgba(171,26,53,0.35);
+  width: 34px; height: 34px;
+  border: 1.5px solid rgba(var(--primary-rgb), 0.40);
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
   left: 0; top: 0;
   transform: translate(-50%, -50%);
-  transition: width 0.3s, height 0.3s, border-color 0.3s, opacity 0.3s;
+  transition: width 0.35s cubic-bezier(0.34,1.56,0.64,1),
+              height 0.35s cubic-bezier(0.34,1.56,0.64,1),
+              border-color 0.3s, box-shadow 0.3s, opacity 0.3s;
   opacity: 0;
   will-change: left, top;
 }
+/* Sweep arm — radar scan */
+.cursor-ring::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 50%; height: 1.5px;
+  background: linear-gradient(90deg, rgba(var(--primary-rgb),0.7), transparent);
+  transform-origin: left center;
+  transform: rotate(0deg);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+/* Pulse ring — onda expansiva */
+.cursor-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--primary-rgb), 0.30);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
 .cursor-ring.is-visible { opacity: 1; }
-.cursor-ring.is-hover   { width: 46px; height: 46px; border-color: rgba(171,26,53,0.55); }
+.cursor-ring.is-hover {
+  width: 52px; height: 52px;
+  border-color: rgba(var(--primary-rgb), 0.70);
+  box-shadow: 0 0 14px rgba(var(--primary-rgb), 0.35),
+              inset 0 0 8px rgba(var(--primary-rgb), 0.08);
+}
+.cursor-ring.is-hover::before {
+  opacity: 1;
+  animation: radar-spin 1.8s linear infinite;
+}
+.cursor-ring.is-hover::after {
+  opacity: 1;
+  animation: radar-pulse 2s ease-out infinite;
+}
 
 /* ============================================================
    NEURAL PARTICLES CANVAS
@@ -2715,6 +2778,147 @@ footer {
    El modo oscuro restaura con [data-theme="dark"] en el mismo bloque.
    ══════════════════════════════════════════════════════════════ */
 
+/* ============================================================
+   ANTES / DESPUÉS
+   ============================================================ */
+.before-after { padding: var(--section-pad); background: var(--bg); }
+.before-after__inner { max-width: var(--max-w); margin: 0 auto; }
+.before-after__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+@media (min-width: 768px) { .before-after__grid { grid-template-columns: 1fr 1fr; gap: 2rem; } }
+.ba-card {
+  border-radius: var(--radius);
+  padding: 2rem;
+  border: 1px solid var(--border-light);
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.ba-card--before { background: var(--surface-2); }
+.ba-card--after  { background: var(--surface-2); border-color: rgba(var(--primary-rgb),0.22); }
+.ba-card__header { margin-bottom: 1.5rem; }
+.ba-card__badge {
+  display: inline-block;
+  font-family: var(--font-head);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.9rem;
+  border-radius: 100px;
+}
+.ba-card__badge--before { background: rgba(100,116,139,0.18); color: var(--text-muted); border: 1px solid rgba(100,116,139,0.25); }
+.ba-card__badge--after  { background: rgba(var(--primary-rgb),0.12); color: var(--primary); border: 1px solid rgba(var(--primary-rgb),0.25); }
+.ba-list { list-style: none; display: flex; flex-direction: column; gap: 0.85rem; }
+.ba-list li { display: flex; align-items: flex-start; gap: 0.7rem; font-size: 0.92rem; line-height: 1.55; color: var(--text-muted); }
+.ba-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 0.1rem; }
+.ba-icon--no  { color: var(--muted); }
+.ba-icon--yes { color: var(--primary); font-weight: 700; }
+.ba-card--after .ba-list li { color: var(--text); }
+
+/* ── CARDS UNIFICADAS — glass + glow granate ──────────────────
+   Aplica a todas las tarjetas de la web. El tilt se añade vía data-tilt
+   en el HTML. El glass ya funciona en ambos modos vía los tokens.       */
+
+/* ── GLASS EFFECT UNIVERSAL — todas las cards ────────────────
+   El glass visual requiere: fondo semitransparente + backdrop-filter
+   + shimmer sweep en hover (lo que realmente hace parecer cristal)  */
+
+/* Fondo semitransparente para que backdrop-filter sea visible */
+[data-theme="dark"] .why-card,
+[data-theme="dark"] .audit-card,
+[data-theme="dark"] .ba-card {
+  background: rgba(12, 12, 15, 0.68) !important;
+}
+
+/* Backdrop filter en todas */
+.why-card,
+.audit-card,
+.ba-card,
+.mini-stat,
+.urgency-stat,
+.hero__pill {
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  transition: box-shadow 0.35s ease, border-color 0.35s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  transform-style: preserve-3d;
+  will-change: transform;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Shimmer sweep — la clave visual del cristal */
+.why-card::after,
+.audit-card::after,
+.ba-card::after,
+.mini-stat::after,
+.urgency-stat::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%);
+  transform: translateX(-130%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.why-card:hover::after,
+.audit-card:hover::after,
+.ba-card:hover::after,
+.mini-stat:hover::after,
+.urgency-stat:hover::after { transform: translateX(130%); }
+
+/* Lift + glow granate en hover */
+.why-card:hover,
+.audit-card:hover,
+.ba-card--after:hover,
+.mini-stat:hover,
+.urgency-stat:hover {
+  transform: translateY(-5px);
+  border-color: rgba(var(--primary-rgb), 0.32) !important;
+  box-shadow:
+    0 0 0 1px rgba(var(--primary-rgb), 0.15),
+    0 16px 45px rgba(var(--primary-rgb), 0.15),
+    inset 0 1px 0 rgba(255,255,255,0.12) !important;
+}
+.ba-card--before:hover {
+  transform: translateY(-5px);
+  border-color: rgba(100,116,139,0.35) !important;
+  box-shadow: 0 16px 45px rgba(0,0,0,0.15) !important;
+}
+
+/* Shimmer keyframe */
+@keyframes shimmer {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX( 120%); }
+}
+
+/* ── SHIMMER EN BOTONES ────────────────────────────────────── */
+.btn-primary::after,
+.btn-submit::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 60%; height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255,255,255,0.32) 50%,
+    transparent 80%
+  );
+  transform: translateX(-180%);
+  pointer-events: none;
+}
+.btn-primary:hover::after,
+.btn-submit:hover::after {
+  animation: shimmer 0.7s ease forwards;
+}
+
 /* Pin overlay — texto claro + sin degradado oscuro en modo claro */
 .pin-overlay { background: linear-gradient(transparent, rgba(0,0,0,0.06)); }
 .pin-overlay-title { color: var(--text-muted); }
@@ -2822,7 +3026,7 @@ footer {
 <!-- TOP BAR -->
 <!-- Logo — arriba izquierda -->
 <a href="#" class="logo-float" aria-label="SYSTEM AI — inicio">
-  <img src="assets/Logo_SYSTEMAI.png" alt="SYSTEM AI" loading="eager">
+  <img src="Logo_SYSTEMAI.png" alt="SYSTEM AI" loading="eager">
 </a>
 
 <!-- Toggle — arriba derecha -->
@@ -2849,6 +3053,7 @@ footer {
 
 <!-- Noise overlay -->
 <div class="noise-overlay" aria-hidden="true"></div>
+<div class="page-transition" id="page-transition" aria-hidden="true"></div>
 
 <!-- Degradado garnet global — fijo en toda la página -->
 <div class="garnet-ambient" aria-hidden="true"></div>
@@ -2858,7 +3063,7 @@ footer {
      ============================================================ -->
 <div id="preloader" aria-hidden="true">
   <video class="preloader__video" autoplay muted playsinline preload="auto" id="preloader-video">
-    <source src="assets/Gr%C3%A1fico_De_L%C3%ADneas_Con_Logotipo.mp4" type="video/mp4">
+    <source src="Gr%C3%A1fico_De_L%C3%ADneas_Con_Logotipo.mp4" type="video/mp4">
   </video>
   <div class="preloader__bottom">
     <p class="preloader__text">Iniciando sistemas inteligentes...</p>
@@ -2876,7 +3081,7 @@ footer {
   <!-- Vídeo de fondo fusionado con el fondo de la web -->
   <div class="hero__video-bg" aria-hidden="true">
     <video class="hero__video-el" autoplay muted playsinline preload="metadata">
-      <source src="assets/Robot_Minimalista_Fotorrealista_Renderizado_Detallado.mp4" type="video/mp4">
+      <source src="Robot_Minimalista_Fotorrealista_Renderizado_Detallado.mp4" type="video/mp4">
     </video>
     <div class="hero__video-mask"></div>
   </div>
@@ -3101,7 +3306,7 @@ footer {
       <div class="pin-slide is-active" data-step="1">
         <div class="pin-slide__mobile-media">
           <video autoplay muted loop playsinline preload="metadata">
-            <source src="assets/Gr%C3%A1fico_De_L%C3%ADneas_Con_Logotipo.mp4" type="video/mp4">
+            <source src="Gr%C3%A1fico_De_L%C3%ADneas_Con_Logotipo.mp4" type="video/mp4">
           </video>
         </div>
         <span class="step-number">01</span>
@@ -3120,7 +3325,7 @@ footer {
       <div class="pin-slide" data-step="2">
         <div class="pin-slide__mobile-media">
           <video autoplay muted loop playsinline preload="metadata">
-            <source src="assets/Robot_Minimalista_Fotorrealista_Renderizado_Detallado.mp4" type="video/mp4">
+            <source src="Robot_Minimalista_Fotorrealista_Renderizado_Detallado.mp4" type="video/mp4">
           </video>
         </div>
         <span class="step-number">02</span>
@@ -3139,7 +3344,7 @@ footer {
       <div class="pin-slide" data-step="3">
         <div class="pin-slide__mobile-media">
           <video autoplay muted loop playsinline preload="metadata">
-            <source src="assets/Smartwatch_con_Notificaci%C3%B3n_de_Cita.mp4" type="video/mp4">
+            <source src="Smartwatch_con_Notificaci%C3%B3n_de_Cita.mp4" type="video/mp4">
           </video>
         </div>
         <span class="step-number">03</span>
@@ -3179,36 +3384,43 @@ footer {
 <!-- ============================================================
      PARA QUIÉN ES
      ============================================================ -->
-<section class="for-whom" aria-labelledby="for-whom-title">
-  <div class="for-whom__inner">
-    <p class="section__eyebrow reveal">¿Es para ti?</p>
-    <h2 class="section__title reveal" id="for-whom-title">¿Es SYSTEM AI para tu empresa?</h2>
-    <div class="for-whom__grid">
-      <div class="for-whom__card for-whom__card--yes reveal reveal-delay-1">
-        <div class="for-whom__card-title">
-          <span class="for-whom__card-icon">✓</span>
-          Esto es para ti si...
+<section class="before-after" aria-labelledby="before-after-title">
+  <div class="before-after__inner">
+    <p class="section__eyebrow reveal">La transformación</p>
+    <h2 class="section__title reveal" id="before-after-title">Tu empresa, antes y después de SYSTEM AI</h2>
+    <div class="before-after__grid">
+
+      <!-- Antes -->
+      <div class="ba-card ba-card--before reveal reveal-delay-1" data-tilt>
+        <div class="ba-card__header">
+          <span class="ba-card__badge ba-card__badge--before">Sin automatizar</span>
         </div>
-        <ul class="for-whom__list">
-          <li><span class="icon">✓</span> Eres empresario o directivo y llevas un negocio B2B con más de 12 meses de actividad</li>
-          <li><span class="icon">✓</span> Pierdes tiempo en tareas repetitivas que alguien (o algo) podría hacer por ti</li>
-          <li><span class="icon">✓</span> Quieres escalar sin contratar más personal de soporte o ventas</li>
-          <li><span class="icon">✓</span> Tienes un proceso de ventas definido pero quieres que la IA lo acelere</li>
-          <li><span class="icon">✓</span> Estás dispuesto a invertir en tecnología que se paga sola</li>
+        <ul class="ba-list">
+          <li><span class="ba-icon ba-icon--no">✗</span> Leads que no reciben seguimiento pierden el interés y se van con la competencia</li>
+          <li><span class="ba-icon ba-icon--no">✗</span> Tu agenda depende de que tú o tu equipo respondáis a tiempo</li>
+          <li><span class="ba-icon ba-icon--no">✗</span> Cada propuesta y email se redacta desde cero cada vez</li>
+          <li><span class="ba-icon ba-icon--no">✗</span> Si no estás disponible, el negocio se frena</li>
+          <li><span class="ba-icon ba-icon--no">✗</span> Tiempo y energía invertidos en tareas que no generan ingresos directos</li>
         </ul>
       </div>
-      <div class="for-whom__card for-whom__card--no reveal reveal-delay-2">
-        <div class="for-whom__card-title">
-          <span class="for-whom__card-icon">✗</span>
-          No es para ti si...
+
+      <!-- Después -->
+      <div class="ba-card ba-card--after reveal reveal-delay-2" data-tilt>
+        <div class="ba-card__header">
+          <span class="ba-card__badge ba-card__badge--after">Con SYSTEM AI</span>
         </div>
-        <ul class="for-whom__list">
-          <li><span class="icon">✗</span> Buscas resultados inmediatos sin ningún tipo de proceso de implementación</li>
-          <li><span class="icon">✗</span> Tu negocio aún no tiene clientes recurrentes ni procesos básicos definidos</li>
-          <li><span class="icon">✗</span> No estás dispuesto a dedicar tiempo a la fase de auditoría y diseño</li>
-          <li><span class="icon">✗</span> Esperas que la IA reemplace completamente el trato humano en ventas de alto valor</li>
+        <ul class="ba-list">
+          <li><span class="ba-icon ba-icon--yes">✓</span> Cada lead recibe seguimiento automático e inmediato, 24/7 sin intervención</li>
+          <li><span class="ba-icon ba-icon--yes">✓</span> Tu agente IA gestiona citas, preguntas y cualificación por ti</li>
+          <li><span class="ba-icon ba-icon--yes">✓</span> Comunicaciones personalizadas generadas y enviadas en segundos</li>
+          <li><span class="ba-icon ba-icon--yes">✓</span> Tu empresa opera aunque no estés disponible</li>
+          <li><span class="ba-icon ba-icon--yes">✓</span> Tu equipo enfocado exclusivamente en lo que genera ingresos reales</li>
         </ul>
       </div>
+
+    </div>
+    <div style="text-align:center;margin-top:2.5rem;">
+      <a href="#contacto" class="btn-primary reveal">Quiero esta transformación</a>
     </div>
   </div>
 </section>
@@ -3260,28 +3472,32 @@ footer {
      ============================================================ -->
 <section class="urgency reveal" aria-labelledby="urgency-title">
   <div class="urgency__inner">
-    <p class="section__eyebrow">El momento es ahora</p>
-    <div class="urgency__divider"></div>
-    <h2 class="urgency__quote" id="urgency-title">
-      En tres años, <em>todas las empresas estarán automatizadas.</em>
-    </h2>
-    <div class="urgency__divider"></div>
-    <p class="urgency__text">Quienes den el salto hoy, dominarán su sector. Quienes esperen, tendrán que competir contra sistemas que no duermen, no se cansan y no cometen errores.<br><br><strong>Toma la ventaja antes que tu competencia.</strong></p>
-    <div class="urgency-stats reveal">
-      <div class="urgency-stat">
-        <span class="counter" data-target="75" data-suffix="%">0</span>
-        <p>de empresas ya automatizan procesos</p>
-      </div>
-      <div class="urgency-stat">
-        <span class="counter" data-target="10" data-suffix="h">0</span>
-        <p>de media recuperadas por semana</p>
-      </div>
-      <div class="urgency-stat">
-        <span class="counter" data-target="3" data-suffix="×">0</span>
-        <p>más rápido en cerrar ventas con IA</p>
+    <!-- Columna izquierda: texto -->
+    <div class="urgency__content">
+      <p class="section__eyebrow reveal">El momento es ahora</p>
+      <h2 class="urgency__quote reveal" id="urgency-title">
+        En tres años, <em>todas las empresas estarán automatizadas.</em>
+      </h2>
+      <p class="section__lead reveal">Quienes den el salto hoy, dominarán su sector. Quienes esperen, tendrán que competir contra sistemas que no duermen, no se cansan y no cometen errores.<br><br><strong>Toma la ventaja antes que tu competencia.</strong></p>
+      <a href="#contacto" class="btn-primary reveal">Empezar hoy — Es gratis</a>
+    </div>
+    <!-- Columna derecha: contadores -->
+    <div class="urgency__stats-col">
+      <div class="urgency-stats reveal">
+        <div class="urgency-stat">
+          <span class="counter" data-target="75" data-suffix="%">0</span>
+          <p>de empresas ya automatizan procesos</p>
+        </div>
+        <div class="urgency-stat">
+          <span class="counter" data-target="10" data-suffix="h">0</span>
+          <p>de media recuperadas por semana</p>
+        </div>
+        <div class="urgency-stat">
+          <span class="counter" data-target="3" data-suffix="×">0</span>
+          <p>más rápido en cerrar ventas con IA</p>
+        </div>
       </div>
     </div>
-    <a href="#contacto" class="btn-primary">Empezar hoy — Es gratis</a>
   </div>
 </section>
 
@@ -3290,21 +3506,26 @@ footer {
      ============================================================ -->
 <section class="founder" aria-labelledby="founder-title">
   <div class="founder__inner">
-    <div class="founder__photo-wrap reveal">
-      <div class="founder__photo-glow" aria-hidden="true"></div>
-      <div class="founder__photo">
-        <img src="assets/Daniel_Boh%C3%B3rquez_profesional_2.0.png" alt="Daniel Bohórquez, fundador de SYSTEM AI" loading="lazy">
-      </div>
-    </div>
-    <div class="reveal reveal-delay-1">
+
+    <!-- Columna izquierda: eyebrow + título + texto (igual que urgency izquierda) -->
+    <div class="reveal">
       <p class="section__eyebrow">Founder</p>
-      <h3 class="founder__name" id="founder-title">Daniel Bohórquez</h3>
+      <h2 class="founder__name section__title" id="founder-title">Daniel Bohórquez</h2>
       <div class="founder__quote">
         "Me frustra ver a dueños de negocios con talento perdiendo la vida en tareas monótonas. La tecnología no viene a quitarnos el trabajo, viene a ayudarnos con el trabajo aburrido para devolvernos la libertad de crear y vender."
       </div>
       <p class="founder__bio">Nacido en 2002, Daniel es nativo de la era de la IA. Fundó <strong>SYSTEM AI</strong> para democratizar la eficiencia: que las PYMES dejen de "apagar fuegos" a mano y empiecen a escalar con sistemas automáticos.</p>
-      <p class="founder__bio">Su enfoque es 100% humano: sentarse contigo, entender tu negocio y construir el sistema que te devuelva 10 horas a la semana mientras tus ventas crecen.</p>
+      <p class="founder__bio">Su enfoque es 100% humano: sentarse contigo, entender tu negocio y construir el sistema que te devuelva tiempo y ventas.</p>
     </div>
+
+    <!-- Columna derecha: foto (igual que urgency derecha con contadores) -->
+    <div class="founder__photo-wrap reveal reveal-delay-1">
+      <div class="founder__photo-glow" aria-hidden="true"></div>
+      <div class="founder__photo">
+        <img src="Daniel_Boh%C3%B3rquez_profesional_2.0.png" alt="Daniel Bohórquez, fundador de SYSTEM AI" loading="lazy">
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -3317,22 +3538,22 @@ footer {
     <h2 class="section__title reveal" id="audit-title">Qué incluye tu Auditoría Digital</h2>
     <p class="section__lead reveal">Un informe de 20 páginas + presentación PowerPoint en reunión. Valorado en 500€. Gratis para las empresas que calificamos.</p>
     <div class="audit-grid">
-      <div class="audit-card reveal reveal-delay-1">
+      <div class="audit-card reveal reveal-delay-1" data-tilt>
         <div class="audit-card__number">01</div>
         <h3>Análisis de tu web</h3>
         <p>Velocidad, conversión, mensajes clave, UX y oportunidades de mejora con IA para aumentar el ratio de captación.</p>
       </div>
-      <div class="audit-card reveal reveal-delay-2">
+      <div class="audit-card reveal reveal-delay-2" data-tilt>
         <div class="audit-card__number">02</div>
         <h3>Evaluación de Meta Ads</h3>
         <p>Revisión de tus campañas activas o pasadas: creatividades, audiencias, objetivos y coste por lead versus potencial con automatización.</p>
       </div>
-      <div class="audit-card reveal reveal-delay-3">
+      <div class="audit-card reveal reveal-delay-3" data-tilt>
         <div class="audit-card__number">03</div>
         <h3>LinkedIn e Instagram</h3>
         <p>Diagnóstico de tu presencia en redes: posicionamiento, contenido, engagement y cómo la IA puede potenciar tu visibilidad orgánica.</p>
       </div>
-      <div class="audit-card reveal reveal-delay-4">
+      <div class="audit-card reveal reveal-delay-4" data-tilt>
         <div class="audit-card__number">04</div>
         <h3>Hoja de ruta IA</h3>
         <p>Las 3-5 implementaciones de IA con mayor impacto para tu negocio concreto, ordenadas por ROI esperado y facilidad de implementación.</p>
@@ -3461,6 +3682,7 @@ footer {
      ============================================================ -->
 <script>
 gsap.registerPlugin(ScrollTrigger);
+if (typeof SplitText !== 'undefined') gsap.registerPlugin(SplitText);
 
 // ── LENIS smooth scroll [A] ──────────────────────────────────
 const lenis = new Lenis({
@@ -3478,34 +3700,45 @@ lenis.on('scroll', ScrollTrigger.update);
   const bar       = document.getElementById('preloader-bar');
   const vid       = document.getElementById('preloader-video');
 
+  if (!preloader) { initPageAnimations(); return; }
+
+  // Ocultar scrollbar de la página mientras el preloader está activo
+  document.body.style.overflow = 'hidden';
+
   function dismiss() {
     if (preloader.dataset.dismissed) return;
     preloader.dataset.dismissed = '1';
+    document.body.style.overflow = '';
     gsap.to(preloader, {
-      opacity: 0, duration: 0.6, ease: 'power2.in',
-      onComplete: () => { preloader.style.display = 'none'; initPageAnimations(); }
+      opacity: 0, duration: 0.55, ease: 'power2.in',
+      onComplete: () => {
+        preloader.style.display = 'none';
+        try { initPageAnimations(); } catch (e) { console.warn(e); }
+      }
     });
   }
 
   if (vid) {
-    vid.playbackRate = 1.38;
-
-    // Barra sincronizada con el progreso del vídeo
-    vid.addEventListener('timeupdate', () => {
-      if (vid.duration) {
-        bar.style.width = ((vid.currentTime / vid.duration) * 100) + '%';
-      }
+    vid.addEventListener('loadedmetadata', () => {
+      try { vid.playbackRate = 1.38; } catch (e) {}
     });
-
-    // Terminar cuando acabe el vídeo
+    vid.addEventListener('timeupdate', () => {
+      if (vid.duration) bar.style.width = ((vid.currentTime / vid.duration) * 100) + '%';
+    });
     vid.addEventListener('ended', dismiss);
+    vid.addEventListener('error', dismiss);
 
-    // Si el vídeo no carga, fallback por tiempo
-    vid.addEventListener('error', () => setTimeout(dismiss, 500));
+    try {
+      const pp = vid.play();
+      if (pp instanceof Promise) pp.catch(dismiss);
+    } catch (e) { dismiss(); }
   }
 
-  // Fallback absoluto (10s)
-  setTimeout(() => { if (!preloader.dataset.dismissed) dismiss(); }, 10000);
+  // Animar la barra siempre como fallback visual (independiente del vídeo)
+  gsap.fromTo(bar, { width: '0%' }, { width: '100%', duration: 5.8, ease: 'power1.inOut' });
+
+  // Fallback absoluto: 6.5s
+  setTimeout(dismiss, 6500);
 })();
 
 // ── PAGE ANIMATIONS (runs after preloader) ───────────────────
@@ -3552,6 +3785,32 @@ function initPageAnimations() {
   // 3D Card Tilt
   initTiltCards();
 
+  // Split text en section__title [G]
+  initSectionTitles();
+
+}
+
+// ── SPLIT TEXT en títulos de sección ─────────────────────────
+function initSectionTitles() {
+  if (typeof SplitText === 'undefined') return; // CDN no disponible — saltar
+  const titles = document.querySelectorAll('h2.section__title, h2.form-section__title');
+  titles.forEach((el) => {
+    const split = new SplitText(el, { type: 'words' });
+    gsap.set(split.words, { y: 28, opacity: 0 });
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 85%',
+      onEnter: () => {
+        gsap.to(split.words, {
+          y: 0, opacity: 1,
+          duration: 0.55, ease: 'power3.out',
+          stagger: 0.055,
+        });
+      },
+      onLeaveBack: () => gsap.set(split.words, { y: 28, opacity: 0 }),
+    });
+  });
 }
 
 // ── PINNED SERVICES + PROCESS ─────────────────────────────────
@@ -3563,6 +3822,20 @@ function initPinnedProcess() {
   const mediaItems  = pinnedSection.querySelectorAll('.pin-video-item');
   const progressBar = document.getElementById('pin-progress-bar');
   const total       = slides.length;
+  let   lastIdx     = -1;
+
+  // Animar el texto del slide cuando se activa
+  function animateSlide(slide) {
+    const eyebrow = slide.querySelector('.section__eyebrow');
+    const title   = slide.querySelector('h3');
+    const para    = slide.querySelector('p:not(.section__eyebrow)');
+    const list    = slide.querySelector('ul, .pin-process-list');
+    const els     = [eyebrow, title, para, list].filter(Boolean);
+    gsap.fromTo(els,
+      { opacity: 0, y: 22 },
+      { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.08, clearProps: 'opacity,y' }
+    );
+  }
 
   ScrollTrigger.create({
     trigger: pinnedSection,
@@ -3571,8 +3844,12 @@ function initPinnedProcess() {
     onUpdate: (self) => {
       const prog = self.progress;
       const idx  = Math.min(Math.floor(prog * total), total - 1);
-      slides.forEach((s, i) => s.classList.toggle('is-active', i === idx));
-      mediaItems.forEach((m, i) => m.classList.toggle('is-active', i === idx));
+      if (idx !== lastIdx) {
+        slides.forEach((s, i) => s.classList.toggle('is-active', i === idx));
+        mediaItems.forEach((m, i) => m.classList.toggle('is-active', i === idx));
+        animateSlide(slides[idx]);
+        lastIdx = idx;
+      }
       if (progressBar) progressBar.style.width = (prog * 100) + '%';
     }
   });
@@ -3714,7 +3991,7 @@ form.addEventListener('submit', async (e) => {
     if (FORM_ENDPOINT === '#') {
       // Demo mode — simulate success
       await new Promise(r => setTimeout(r, 1200));
-      window.location.href = 'gracias.html';
+      navigateToGracias();
       return;
     }
     const res = await fetch(FORM_ENDPOINT, {
@@ -3723,7 +4000,7 @@ form.addEventListener('submit', async (e) => {
       body: JSON.stringify({ name: nameVal, company: companyVal, email: emailVal, phone: phoneVal }),
     });
     if (res.ok) {
-      window.location.href = 'gracias.html';
+      navigateToGracias();
     } else {
       throw new Error('Server error');
     }
@@ -3856,7 +4133,7 @@ new ExitIntent();
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let w, h, particles;
-  const COUNT    = 150;
+  const COUNT    = 95;
   const MAX_DIST = 130;
   const PRIMARY  = '171,26,53';
 
@@ -3876,6 +4153,20 @@ new ExitIntent();
       r:  Math.random() * 1.8 + 0.8,
       hi: Math.random() < 0.32,
       update() {
+        // Imán: atracción suave hacia el cursor en radio 140px
+        const cx = mouseX - offsetX;
+        const cy = mouseY - offsetY;
+        const dx = cx - this.x;
+        const dy = cy - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120 && dist > 0) {
+          const force = (1 - dist / 120) * 0.012;
+          this.vx += (dx / dist) * force;
+          this.vy += (dy / dist) * force;
+        }
+        // Limitar velocidad máxima
+        const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+        if (speed > 1.6) { this.vx *= 1.6 / speed; this.vy *= 1.6 / speed; }
         this.x += this.vx; this.y += this.vy;
         if (this.x < 0 || this.x > w) this.vx *= -1;
         if (this.y < 0 || this.y > h) this.vy *= -1;
@@ -3922,10 +4213,28 @@ new ExitIntent();
     }
   }
 
+  // Parallax + posición real del ratón para el imán
+  let offsetX = 0, offsetY = 0, targetOX = 0, targetOY = 0;
+  let mouseX = -9999, mouseY = -9999;
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    const dx = (e.clientX / window.innerWidth  - 0.5) * 2;
+    const dy = (e.clientY / window.innerHeight - 0.5) * 2;
+    targetOX = dx * 18;
+    targetOY = dy * 12;
+  }, { passive: true });
+
   function tick() {
+    // Lerp hacia el objetivo — suaviza el movimiento
+    offsetX += (targetOX - offsetX) * 0.04;
+    offsetY += (targetOY - offsetY) * 0.04;
+
     ctx.clearRect(0, 0, w, h);
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
     particles.forEach(p => { p.update(); p.draw(); });
     drawLines();
+    ctx.restore();
     requestAnimationFrame(tick);
   }
 
@@ -4161,6 +4470,22 @@ function initSlideAnim(sel, startFn, stopFn) {
   initSlideAnim('.pin-timeline-sim', start, stop);
 })();
 
+// ── PAGE TRANSITION ───────────────────────────────────────────
+function navigateToGracias() {
+  const overlay = document.getElementById('page-transition');
+  if (!overlay) { window.location.href = 'gracias.html'; return; }
+  gsap.timeline()
+    .to(overlay, {
+      scaleY: 1, duration: 0.55, ease: 'power3.inOut',
+      transformOrigin: 'bottom center',
+    })
+    .to(overlay, {
+      scaleY: 0, duration: 0.45, ease: 'power3.inOut',
+      transformOrigin: 'top center',
+      onStart: () => { window.location.href = 'gracias.html'; },
+    });
+}
+
 // ── THEME TOGGLE ──────────────────────────────────────────────
 (function initThemeToggle() {
   const btn  = document.getElementById('theme-toggle');
@@ -4173,116 +4498,37 @@ function initSlideAnim(sel, startFn, stopFn) {
   });
 })();
 
-// ── BOOMERANG ─────────────────────────────────────────────────
-// NOTA: para boomerang perfecto sin limitaciones ejecuta en /assets/:
-//   ffmpeg -i Robot_Minimalista_Fotorrealista_Renderizado_Detallado.mp4 -vf reverse rev.mp4
-//   ffmpeg -i Robot_Minimalista_Fotorrealista_Renderizado_Detallado.mp4 -i rev.mp4 -filter_complex "[0][1]concat=n=2:v=1:a=0" boomerang.mp4
-// Luego cambia el src del vídeo a boomerang.mp4 y añade loop. Sin canvas, sin bugs.
-(function initBoomerang() {
+// ── GLITCH FLASH LOOP — reinicio con destello digital tipo glitch ─
+(function initGlitchLoop() {
   const video = document.querySelector('.hero__video-el');
   const bg    = video ? video.closest('.hero__video-bg') : null;
   if (!video || !bg) return;
 
-  const FPS   = 15;   // 15fps — ligero, suficiente para el efecto de fondo
-  const CAP_W = 854;
-  const CAP_H = 480;
+  video.addEventListener('ended', () => {
+    video.currentTime = 0;
 
-  const frames     = [];
-  const frameTimes = [];
-  let   capTimer   = null;
-  let   revRafId   = null;
-
-  // Canvas con posición idéntica al vídeo pero SIN heredar su opacity CSS
-  // (se aplica manualmente con globalAlpha para evitar doble aplicación)
-  const cvs = document.createElement('canvas');
-  const isDark = () => document.documentElement.dataset.theme === 'dark';
-  function syncStyles() {
-    cvs.style.cssText = `position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none;mix-blend-mode:${isDark() ? 'screen' : 'multiply'};`;
-  }
-  syncStyles();
-  bg.appendChild(cvs);
-  const ctx = cvs.getContext('2d');
-
-  // Captura con globalAlpha equivalente al opacity CSS del vídeo
-  function capture() {
-    if (video.paused || video.ended) return;
-    const fc = document.createElement('canvas');
-    fc.width = CAP_W; fc.height = CAP_H;
-    fc.getContext('2d').drawImage(video, 0, 0, CAP_W, CAP_H);
-    frames.push(fc);
-    frameTimes.push(video.currentTime);
-  }
-
-  function drawCover(fc) {
-    const W = bg.offsetWidth  || 1280;
-    const H = bg.offsetHeight || 720;
-    if (cvs.width !== W) cvs.width = W;
-    if (cvs.height !== H) cvs.height = H;
-    // Aplicar el mismo opacity que el vídeo (0.52 en ambos modos)
-    const vOpacity = parseFloat(window.getComputedStyle(video).opacity) || 0.52;
-    ctx.globalAlpha = vOpacity;
-    const iA = CAP_W / CAP_H;
-    const cA = W / H;
-    let dw, dh, dx, dy;
-    if (iA > cA) { dh = H; dw = dh * iA; dx = (W - dw) / 2; dy = 0; }
-    else         { dw = W; dh = dw / iA;  dx = 0; dy = (H - dh) / 2; }
-    ctx.clearRect(0, 0, W, H);
-    ctx.drawImage(fc, 0, 0, CAP_W, CAP_H, dx, dy, dw, dh);
-    ctx.globalAlpha = 1;
-  }
-
-  function startCapture() {
-    frames.length = 0; frameTimes.length = 0;
-    syncStyles(); // re-sync en caso de cambio de tema
-    capTimer = setInterval(capture, 1000 / FPS);
-  }
-
-  function startReverse() {
-    clearInterval(capTimer); capTimer = null;
-    if (frames.length < 3) { video.currentTime = 0; video.play().catch(() => {}); return; }
-
-    video.style.opacity = '0';
-    cvs.style.display   = 'block';
-    syncStyles(); cvs.style.display = 'block';
-
-    const last     = frames.length - 1;
-    const duration = (frameTimes[last] - frameTimes[0]) || video.duration;
-    let   startTs  = null;
-
-    revRafId = requestAnimationFrame(function reverseStep(ts) {
-      if (!startTs) startTs = ts;
-      const progress = Math.min((ts - startTs) / 1000 / duration, 1);
-      drawCover(frames[Math.round((1 - progress) * last)]);
-
-      if (progress < 1) { revRafId = requestAnimationFrame(reverseStep); return; }
-
-      revRafId = null;
-      drawCover(frames[0]); // canvas muestra frame 0 mientras el vídeo reinicia
-
-      video.currentTime = 0;
-      video.play().catch(() => {});
-
-      let swapped = false;
-      function doSwap() {
-        if (swapped) return; swapped = true;
-        frames.length = 0; frameTimes.length = 0;
-        cvs.style.display   = 'none';
-        video.style.opacity = '';
-        startCapture();
-      }
-      if (video.requestVideoFrameCallback) video.requestVideoFrameCallback(doSwap);
-      setTimeout(doSwap, 80); // fallback
-    });
-  }
-
-  video.addEventListener('loadeddata', () => { video.currentTime = 0; }, { once: true });
-  video.addEventListener('play', function init() {
-    video.removeEventListener('play', init);
-    startCapture();
+    // Secuencia de glitch: filtros CSS + jitter horizontal — ~600ms total
+    gsap.timeline({ onComplete: () => video.play().catch(() => {}) })
+      // Sobreexposición blanca + jitter
+      .set (bg, { filter: 'brightness(4) contrast(6) saturate(0)' })
+      .to  (bg, { x: -10, duration: 0.09, ease: 'none' })
+      // Flash granate
+      .set (bg, { filter: 'brightness(0.4) hue-rotate(340deg) contrast(4)' })
+      .to  (bg, { x:  7,  duration: 0.08, ease: 'none' })
+      // Destello blanco
+      .set (bg, { filter: 'brightness(5) saturate(0)' })
+      .to  (bg, { x: -5,  duration: 0.07, ease: 'none' })
+      // Fallo de color
+      .set (bg, { filter: 'brightness(0.7) hue-rotate(10deg) contrast(2)' })
+      .to  (bg, { x:  3,  duration: 0.08, ease: 'none' })
+      // Último destello
+      .set (bg, { filter: 'brightness(3) contrast(3)' })
+      .to  (bg, { x:  0,  duration: 0.09, ease: 'power2.out' })
+      // Normalizar suavemente
+      .to  (bg, { filter: 'brightness(1) contrast(1) saturate(1) hue-rotate(0deg)', duration: 0.18, ease: 'power1.out' })
+      .set (bg, { clearProps: 'filter,x' });
   });
-  video.addEventListener('ended', () => { if (!revRafId) startReverse(); });
 })();
-
 // ── VIDEO FADE — difuminado suave al salir del hero ──────────
 (function initVideoFade() {
   const videoBg = document.querySelector('.hero__video-bg');
@@ -4306,3 +4552,4 @@ function initSlideAnim(sel, startFn, stopFn) {
 
 </body>
 </html>
+
