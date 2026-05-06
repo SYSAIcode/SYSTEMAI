@@ -2769,7 +2769,7 @@ footer {
 }
 .hero__bg-gradient { z-index: 1; }
 .hero__inner { z-index: 2; position: relative; }
-@media (max-width: 768px) { .hero__video-bg { display: none; } }
+@media (max-width: 768px) and (orientation: portrait) { .hero__video-bg { display: none; } }
 @media (prefers-reduced-motion: reduce) { .hero__video-el { display: none; } }
 
 /* ══════════════════════════════════════════════════════════════
@@ -2953,19 +2953,11 @@ footer {
   box-shadow: 0 6px 24px rgba(37,211,102,0.55);
 }
 
-/* Móvil — mostrar demos interactivos en lugar de vídeos */
+/* Móvil — cada slide muestra su vídeo inline debajo del texto */
 @media (max-width: 1023px) {
-  .pin-slide__mobile-media { display: none !important; }
-  .pin-video-item {
-    position: relative !important;
-    inset: auto !important;
-    width: 100% !important;
-    height: auto !important;
-    opacity: 1 !important;
-    margin-bottom: 1.5rem;
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
+  .pin-sticky { display: none !important; }
+  .pin-slide__mobile-media { display: block !important; margin-top: 1.5rem; margin-bottom: 0; }
+  .pin-slide__mobile-media video { width: 100%; height: auto; border-radius: 0; }
   .pin-slide { opacity: 1 !important; }
 }
 
@@ -3012,6 +3004,179 @@ footer {
 [data-theme="dark"] .tl-phase.is-done .tl-phase__dot { border-color: rgba(74,222,128,0.55) !important; background: rgba(74,222,128,0.15) !important; }
 [data-theme="dark"] .tl-phase.is-done .tl-phase__line::after { background: rgba(74,222,128,0.35) !important; }
 [data-theme="dark"] .tl-check.is-checked .tl-check__box { background: rgba(74,222,128,0.1) !important; border-color: rgba(74,222,128,0.6) !important; color: #4ade80 !important; }
+
+/* ============================================================
+   AJUSTES MÓVIL — portrait / proporciones / mejoras
+   Todos los cambios de este bloque son SOLO para móvil.
+   El desktop no se modifica.
+   ============================================================ */
+
+/* 1. Preloader — vídeo landscape en pantalla portrait */
+@media (max-width: 768px) and (orientation: portrait) {
+  .preloader__video {
+    object-fit: contain;
+    object-position: center center;
+    background: #0f0f12;
+  }
+}
+
+/* 2. Hero — fondo de sustitución en portrait (sin vídeo) */
+@media (max-width: 768px) and (orientation: portrait) {
+  .hero {
+    background:
+      radial-gradient(ellipse 90% 55% at 50% 0%, rgba(138,20,40,0.22) 0%, transparent 68%),
+      var(--bg);
+  }
+}
+
+/* 3. Hero — landscape móvil: vídeo visible y altura mínima */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero {
+    min-height: 100svh;
+    padding-top: 4rem;
+  }
+  .hero__video-el { opacity: 0.42; }
+}
+
+/* 4. Proporciones generales — pantallas ≤480px */
+@media (max-width: 480px) {
+  :root { --section-pad: 3rem 1rem; }
+
+  .hero__title        { font-size: clamp(1.75rem, 7.5vw, 2.4rem) !important; }
+  .hero__sub          { font-size: 0.88rem; }
+  .hero__eyebrow      { font-size: 0.7rem; }
+  .hero__trust        { font-size: 0.78rem; }
+
+  .section__title     { font-size: clamp(1.4rem, 6vw, 2rem) !important; }
+  .section__lead      { font-size: 0.88rem; }
+  .section__eyebrow   { font-size: 0.68rem; }
+
+  .btn-primary, .btn-secondary {
+    padding: 0.7rem 1.4rem;
+    font-size: 0.88rem;
+  }
+
+  .why-card           { padding: 1.2rem; }
+  .why-card h3        { font-size: 0.98rem; }
+  .why-card p         { font-size: 0.83rem; }
+  .why-card__icon     { width: 40px; height: 40px; font-size: 1.1rem; }
+
+  .pin-slide h3       { font-size: 1.25rem; }
+  .pin-slide p        { font-size: 0.88rem; }
+  .pin-slide ul li    { font-size: 0.83rem; }
+  .step-number        { font-size: 3rem; }
+
+  .mini-stat__num     { font-size: 1.6rem; }
+  .mini-stat__label   { font-size: 0.72rem; }
+}
+
+/* 5. Pinned slides — separación visual entre slides en móvil */
+@media (max-width: 1023px) {
+  .pin-slides { display: flex; flex-direction: column; gap: 0; }
+  .pin-slide  { padding: 2.5rem 1rem; border-top: 1px solid var(--border-light); }
+  .pin-slide:first-child { border-top: none; }
+  .pin-slide__mobile-media {
+    border-radius: var(--radius);
+    overflow: hidden;
+    aspect-ratio: 16/10;
+    background: var(--surface-2);
+  }
+  .pin-slide__mobile-media video { width: 100%; height: 100%; object-fit: cover; }
+}
+
+/* 6. Founder — foto más pequeña y centrada en móvil */
+@media (max-width: 768px) {
+  .founder__inner {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 2rem;
+  }
+  .founder__photo {
+    max-width: 180px !important;
+    margin: 0 auto !important;
+    aspect-ratio: 3/4;
+  }
+  .founder__photo-glow {
+    width: min(calc(100% + 12px), 192px);
+  }
+  .founder__photo-badge {
+    bottom: -0.75rem;
+    right: -0.5rem;
+    font-size: 0.72rem;
+    padding: 0.55rem 0.9rem;
+  }
+  .founder__quote {
+    font-size: 1rem;
+    padding-left: 1rem;
+  }
+  .founder__name { font-size: clamp(1.4rem, 6vw, 2rem); }
+}
+
+/* 7. CTA bar fija inferior en móvil */
+.mobile-cta-bar {
+  display: none;
+}
+@media (max-width: 768px) {
+  .mobile-cta-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 990;
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+    gap: 0.75rem;
+    background: rgba(15,15,18,0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    align-items: center;
+  }
+  [data-theme="light"] .mobile-cta-bar {
+    background: rgba(248,248,250,0.97);
+    border-top: 1px solid rgba(0,0,0,0.10);
+  }
+  .mobile-cta-bar__btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    min-height: 48px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .mobile-cta-bar__btn:active { transform: scale(0.97); }
+  .mobile-cta-bar__btn--primary {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(var(--primary-rgb),0.4);
+  }
+  .mobile-cta-bar__btn--wa {
+    background: #25D366;
+    color: #fff;
+    flex: 0 0 48px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 16px rgba(37,211,102,0.35);
+  }
+  /* Empujar el footer y contenido para que no quede tapado */
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+}
+
+/* 8. Ocultar barra de progreso de scroll en landscape estrecho */
+@media (max-width: 768px) and (orientation: landscape) and (max-height: 450px) {
+  .scroll-indicator { display: none; }
+  .hero__pills { display: none; }
+}
 </style>
 </head>
 <body>
@@ -4548,8 +4713,59 @@ function navigateToGracias() {
     onEnterBack: () => { videoBg.style.opacity = '1'; }
   });
 })();
+
+// ── MÓVIL: vídeos de servicios — play al entrar, pause+reset al salir ──
+(function initMobileSlideVideos() {
+  if (window.innerWidth >= 1024) return;
+  const videos = document.querySelectorAll('.pin-slide__mobile-media video');
+  if (!videos.length) return;
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const v = entry.target;
+      if (entry.isIntersecting) {
+        v.currentTime = 0;
+        v.play().catch(() => {});
+      } else {
+        v.pause();
+        v.currentTime = 0;
+      }
+    });
+  }, { threshold: 0.35 });
+  videos.forEach((v) => {
+    v.autoplay = false;
+    obs.observe(v);
+  });
+})();
+
+// ── MÓVIL: CTA bar — ocultar en la zona del formulario para no tapar ──
+(function initMobileCtaBar() {
+  const bar = document.querySelector('.mobile-cta-bar');
+  if (!bar) return;
+  const form = document.getElementById('contacto') || document.querySelector('.form-section');
+  if (!form) return;
+  const obs = new IntersectionObserver(([entry]) => {
+    bar.style.opacity = entry.isIntersecting ? '0' : '1';
+    bar.style.pointerEvents = entry.isIntersecting ? 'none' : '';
+  }, { threshold: 0.2 });
+  obs.observe(form);
+})();
 </script>
+
+<!-- CTA bar fija inferior — solo visible en móvil (CSS controla display) -->
+<div class="mobile-cta-bar" aria-label="Acciones rápidas">
+  <a href="#contacto" class="mobile-cta-bar__btn mobile-cta-bar__btn--primary">
+    Auditoría Gratuita
+  </a>
+  <a href="https://wa.me/34610385539?text=Hola%2C%20me%20interesa%20la%20Auditor%C3%ADa%20Digital%20Gratuita%20de%20SYSTEM%20AI"
+     class="mobile-cta-bar__btn mobile-cta-bar__btn--wa"
+     target="_blank" rel="noopener noreferrer"
+     aria-label="WhatsApp">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.528 5.855L0 24l6.335-1.508A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.6c-1.991 0-3.849-.552-5.43-1.508l-.39-.232-4.044.963.98-3.944-.253-.405A9.564 9.564 0 012.4 12C2.4 6.699 6.699 2.4 12 2.4S21.6 6.699 21.6 12 17.301 21.6 12 21.6z"/>
+    </svg>
+  </a>
+</div>
 
 </body>
 </html>
-
