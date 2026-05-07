@@ -1164,17 +1164,22 @@ body::after {
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 3rem;
-  align-items: center;
+  gap: 1.5rem;
+  align-items: start;
   position: relative;
   z-index: 1;
 }
+/* Desktop: eyebrow-wrap + content en columna izq, foto en columna der */
 @media (min-width: 768px) {
   .founder__inner {
     grid-template-columns: 1.3fr 0.7fr;
-    gap: 5rem;
-    align-items: center;
+    grid-template-rows: auto 1fr;
+    gap: 0 5rem;
+    align-items: start;
   }
+  .founder__eyebrow-wrap { grid-column: 1; grid-row: 1; }
+  .founder__photo-wrap   { grid-column: 2; grid-row: 1 / 3; align-self: center; }
+  .founder__content      { grid-column: 1; grid-row: 2; }
 }
 .founder__photo-wrap {
   position: relative;
@@ -1729,13 +1734,31 @@ footer {
 }
 
 /* ============================================================
-   BOTTOM FLOAT — solo botón WA, sin fondo
+   BOTTOM FLOAT — botones apilados (auditoría + WA)
    ============================================================ */
 .bottom-float {
   position: fixed;
   bottom: 1.5rem;
   right: 1.75rem;
   z-index: 9996;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  align-items: center;
+}
+.topbar__audit {
+  background: var(--primary);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 20px rgba(var(--primary-rgb),0.45);
+}
+.topbar__audit:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 6px 24px rgba(var(--primary-rgb),0.55);
+  transform: translateY(-3px);
+}
+[data-theme="dark"] .topbar__audit {
+  box-shadow: 0 4px 20px rgba(var(--primary-rgb),0.5);
 }
 
 /* ============================================================
@@ -3005,20 +3028,45 @@ footer {
 [data-theme="dark"] .tl-check.is-checked .tl-check__box { background: rgba(74,222,128,0.1) !important; border-color: rgba(74,222,128,0.6) !important; color: #4ade80 !important; }
 
 /* ============================================================
-   AJUSTES MÓVIL — proporciones / servicios / scroll / mejoras
+   AJUSTES MÓVIL — layout / proporciones / performance / UX
    Solo para móvil. El desktop no se modifica.
    ============================================================ */
 
-/* 1. Hero — vídeo visible en portrait y landscape */
-/* object-fit: cover aplica en todos los formatos sin override */
+/* A1. Texto centrado globalmente en móvil */
+@media (max-width: 768px) {
+  .section__eyebrow, .section__title, .section__lead,
+  .urgency__quote, .founder__quote, .founder__bio, .founder__name,
+  .pin-slide h3, .pin-slide p,
+  .why-card h3, .why-card p,
+  .audit-card h3, .audit-card p,
+  .form-section__title, .form-section__sub { text-align: center; }
+  .section__lead { margin-left: auto; margin-right: auto; }
+  .urgency__content { align-items: center; }
+  .pin-slide ul { align-items: center; }
+}
 
-/* 2. Hero — landscape estrecho: altura mínima y opacidad del vídeo */
+/* A2. Logo más pequeño en móvil */
+@media (max-width: 768px) {
+  .logo-float { top: 0.75rem; left: 1rem; }
+  .logo-float img { height: 52px; }
+}
+
+/* A6. Urgency stats — layout horizontal en móvil */
+@media (max-width: 768px) {
+  .urgency__inner { grid-template-columns: 1fr; }
+  .urgency-stats { flex-direction: row; justify-content: center; flex-wrap: wrap; gap: 1rem; }
+  .urgency-stat { flex: 1; min-width: 80px; }
+  .urgency-stat .counter { font-size: clamp(1.8rem, 7vw, 2.8rem); }
+  .urgency-stat p { font-size: 0.72rem; max-width: 10ch; }
+}
+
+/* Hero — landscape estrecho */
 @media (max-width: 768px) and (orientation: landscape) {
   .hero { min-height: 100svh; padding-top: 4rem; }
   .hero__video-el { opacity: 0.42; }
 }
 
-/* 3. Proporciones generales — pantallas ≤480px */
+/* Proporciones generales — pantallas ≤480px */
 @media (max-width: 480px) {
   :root { --section-pad: 3rem 1rem; }
   .hero__title        { font-size: clamp(1.75rem, 7.5vw, 2.4rem) !important; }
@@ -3041,13 +3089,12 @@ footer {
   .mini-stat__label   { font-size: 0.72rem; }
 }
 
-/* 4. Sección servicios — demos dinámicas insertadas por JS debajo del texto */
+/* Sección servicios — demos dinámicas insertadas por JS */
 @media (max-width: 1023px) {
   .pin-slides { display: flex; flex-direction: column; gap: 0; }
   .pin-slide  { padding: 2.5rem 1rem; border-top: 1px solid var(--border-light); min-height: unset; }
   .pin-slide:first-child { border-top: none; }
   .pin-slide__mobile-media { display: none !important; }
-  /* Demos movidas dentro de cada slide por JS */
   .pin-slide .pin-video-item {
     position: relative !important;
     inset: auto !important;
@@ -3058,6 +3105,7 @@ footer {
     border-radius: var(--radius);
     overflow: hidden;
     margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
   }
   .pin-slide .pin-video-item.is-active { opacity: 1; }
   .pin-slide .pin-flow-sim,
@@ -3065,84 +3113,103 @@ footer {
   .pin-slide .pin-timeline-sim { height: 100%; overflow-y: auto; }
 }
 
-/* 5. Founder — eyebrow + nombre arriba, foto abajo, tamaño reducido */
+/* A7. Founder — foto en el medio, ligeramente más grande */
 @media (max-width: 768px) {
   .founder__inner {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    gap: 1.5rem;
   }
   .founder__photo {
-    max-width: 180px !important;
+    max-width: 220px !important;
     margin: 0 auto !important;
     aspect-ratio: 3/4;
   }
-  .founder__photo-glow { width: min(calc(100% + 12px), 192px); }
+  .founder__photo-glow { width: min(calc(100% + 12px), 232px); }
   .founder__photo-badge { bottom: -0.75rem; right: -0.5rem; font-size: 0.72rem; padding: 0.55rem 0.9rem; }
   .founder__quote { font-size: 1rem; padding-left: 1rem; }
   .founder__name { font-size: clamp(1.4rem, 6vw, 2rem); }
 }
 
-/* 6. CTA bar fija inferior en móvil */
-.mobile-cta-bar { display: none; }
-@media (max-width: 768px) {
-  .mobile-cta-bar {
-    display: flex;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 990;
-    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
-    gap: 0.75rem;
-    background: rgba(15,15,18,0.97);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid rgba(255,255,255,0.08);
-    align-items: center;
-    transition: opacity 0.3s ease;
-  }
-  [data-theme="light"] .mobile-cta-bar {
-    background: rgba(248,248,250,0.97);
-    border-top: 1px solid rgba(0,0,0,0.10);
-  }
-  .mobile-cta-bar__btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.7rem 1rem;
-    border-radius: var(--radius-sm);
-    font-family: var(--font-head);
-    font-weight: 600;
-    font-size: 0.82rem;
-    text-decoration: none;
-    cursor: pointer;
-    border: none;
-    min-height: 48px;
-    transition: transform 0.15s ease;
-  }
-  .mobile-cta-bar__btn:active { transform: scale(0.97); }
-  .mobile-cta-bar__btn--primary {
-    background: var(--primary);
-    color: #fff;
-    box-shadow: 0 4px 16px rgba(var(--primary-rgb),0.4);
-  }
-  .mobile-cta-bar__btn--wa {
-    background: #25D366;
-    color: #fff;
-    flex: 0 0 48px;
-    padding: 0;
-    border-radius: var(--radius-sm);
-    box-shadow: 0 4px 16px rgba(37,211,102,0.35);
-  }
-  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+/* C3. Hero CTAs — columna en móvil pequeño */
+@media (max-width: 480px) {
+  .hero__ctas { flex-direction: column; align-items: stretch; }
+  .hero__ctas .btn-primary,
+  .hero__ctas .btn-secondary { justify-content: center; width: 100%; }
 }
 
-/* 7. Landscape muy estrecho — ocultar elementos secundarios */
+/* C4. Inputs — font-size 16px mínimo para evitar zoom en iOS */
+@media (max-width: 768px) {
+  .form-group input,
+  .form-group textarea { font-size: 1rem !important; }
+}
+
+/* C5. Why-cards — sin hover en touch, borde estático */
+@media (pointer: coarse) {
+  .why-card::before { display: none; }
+  .why-card { border-color: rgba(var(--primary-rgb), 0.18); }
+}
+
+/* C6. Exit popup — bottom sheet en móvil */
+@media (max-width: 768px) {
+  #exit-popup { align-items: flex-end; padding: 0; }
+  .exit-modal {
+    padding: 2rem 1.25rem 2rem;
+    max-height: 90svh;
+    overflow-y: auto;
+    border-radius: var(--radius) var(--radius) 0 0;
+    width: 100%;
+    max-width: 100%;
+    animation: modal-slide-up 0.32s cubic-bezier(0.34,1.2,0.64,1);
+  }
+  @keyframes modal-slide-up {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .exit-close { top: 0.75rem; right: 0.75rem; }
+  .exit-title { font-size: 1.35rem; }
+}
+
+/* C7. Hero above-the-fold en 375px */
+@media (max-width: 390px) {
+  .hero { padding: 5rem 1rem 2rem; }
+  .hero__sub { margin-bottom: 1.5rem; }
+  .hero__pills { display: none; }
+}
+
+/* Landscape muy estrecho */
 @media (max-width: 768px) and (orientation: landscape) and (max-height: 450px) {
   .scroll-indicator { display: none; }
   .hero__pills { display: none; }
+}
+
+/* B1. Preloader — dezoom portrait + blur bars adaptativo */
+@media (max-width: 768px) and (orientation: portrait) {
+  .preloader__video {
+    transform: scale(0.76);
+    transform-origin: center center;
+  }
+  .preloader__blur-top,
+  .preloader__blur-bottom {
+    position: absolute;
+    left: 0; right: 0;
+    height: 14%;
+    z-index: 2;
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    pointer-events: none;
+  }
+  .preloader__blur-top {
+    top: 0;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+  }
+  .preloader__blur-bottom {
+    bottom: 0;
+    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+  }
 }
 </style>
 </head>
@@ -3170,8 +3237,13 @@ footer {
   </button>
 </div>
 
-<!-- Abajo derecha: solo botón WhatsApp flotante, sin fondo -->
+<!-- Abajo derecha: botón auditoría + botón WhatsApp -->
 <div class="bottom-float">
+  <a href="#contacto"
+     class="topbar__icon-btn topbar__audit"
+     aria-label="Consigue tu Auditoría Gratuita">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+  </a>
   <a href="https://wa.me/34610385539?text=Hola%2C%20me%20interesa%20la%20Auditor%C3%ADa%20Digital%20Gratuita%20de%20SYSTEM%20AI"
      class="topbar__icon-btn topbar__wa"
      target="_blank" rel="noopener noreferrer"
@@ -3197,6 +3269,9 @@ footer {
   <video class="preloader__video" autoplay muted playsinline preload="auto" id="preloader-video">
     <source src="Gr%C3%A1fico_De_L%C3%ADneas_Con_Logotipo.mp4" type="video/mp4">
   </video>
+  <!-- Blur bars — solo visibles en portrait móvil via CSS -->
+  <div class="preloader__blur-top" aria-hidden="true"></div>
+  <div class="preloader__blur-bottom" aria-hidden="true"></div>
   <div class="preloader__bottom">
     <p class="preloader__text">Iniciando sistemas inteligentes...</p>
     <div class="preloader__bar-wrap">
@@ -3483,29 +3558,6 @@ footer {
         <p class="section__eyebrow">Cómo trabajamos</p>
         <h3>De la auditoría a los resultados</h3>
         <p>Un proceso claro en tres fases diseñado para que veas resultados reales desde el primer mes.</p>
-        <div class="pin-process-list">
-          <div class="pin-process-item">
-            <span class="pin-process-item__num">01</span>
-            <div>
-              <strong>Auditoría Digital Gratuita</strong>
-              <p>Informe de 20 páginas + presentación PowerPoint con tus oportunidades de IA</p>
-            </div>
-          </div>
-          <div class="pin-process-item">
-            <span class="pin-process-item__num">02</span>
-            <div>
-              <strong>Diseño e implementación</strong>
-              <p>Sistema 100% a medida para tu proceso, herramientas y equipo</p>
-            </div>
-          </div>
-          <div class="pin-process-item">
-            <span class="pin-process-item__num">03</span>
-            <div>
-              <strong>Resultados y optimización</strong>
-              <p>Métricas claras, ajustes continuos y soporte directo sin intermediarios</p>
-            </div>
-          </div>
-        </div>
         <a href="#contacto" class="btn-primary" style="margin-top: 2rem; width: fit-content;">Empezar con mi Auditoría Gratuita</a>
       </div>
 
@@ -3639,23 +3691,27 @@ footer {
 <section class="founder" aria-labelledby="founder-title">
   <div class="founder__inner">
 
-    <!-- Columna izquierda: eyebrow + título + texto (igual que urgency izquierda) -->
-    <div class="reveal">
+    <!-- Eyebrow separado — en móvil queda arriba de todo -->
+    <div class="founder__eyebrow-wrap reveal">
       <p class="section__eyebrow">Founder</p>
+    </div>
+
+    <!-- Foto — en móvil queda entre el eyebrow y el nombre -->
+    <div class="founder__photo-wrap reveal reveal-delay-1">
+      <div class="founder__photo-glow" aria-hidden="true"></div>
+      <div class="founder__photo">
+        <img src="Daniel_Boh%C3%B3rquez_profesional_2.0.png" alt="Daniel Bohórquez, fundador de SYSTEM AI" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Nombre + contenido — en móvil queda debajo de la foto -->
+    <div class="founder__content reveal">
       <h2 class="founder__name section__title" id="founder-title">Daniel Bohórquez</h2>
       <div class="founder__quote">
         "Me frustra ver a dueños de negocios con talento perdiendo la vida en tareas monótonas. La tecnología no viene a quitarnos el trabajo, viene a ayudarnos con el trabajo aburrido para devolvernos la libertad de crear y vender."
       </div>
       <p class="founder__bio">Nacido en 2002, Daniel es nativo de la era de la IA. Fundó <strong>SYSTEM AI</strong> para democratizar la eficiencia: que las PYMES dejen de "apagar fuegos" a mano y empiecen a escalar con sistemas automáticos.</p>
       <p class="founder__bio">Su enfoque es 100% humano: sentarse contigo, entender tu negocio y construir el sistema que te devuelva tiempo y ventas.</p>
-    </div>
-
-    <!-- Columna derecha: foto (igual que urgency derecha con contadores) -->
-    <div class="founder__photo-wrap reveal reveal-delay-1">
-      <div class="founder__photo-glow" aria-hidden="true"></div>
-      <div class="founder__photo">
-        <img src="Daniel_Boh%C3%B3rquez_profesional_2.0.png" alt="Daniel Bohórquez, fundador de SYSTEM AI" loading="lazy">
-      </div>
     </div>
 
   </div>
@@ -3816,15 +3872,18 @@ footer {
 gsap.registerPlugin(ScrollTrigger);
 if (typeof SplitText !== 'undefined') gsap.registerPlugin(SplitText);
 
-// ── LENIS smooth scroll [A] ──────────────────────────────────
-const lenis = new Lenis({
+// ── LENIS smooth scroll [A] — desactivado en móvil (scroll nativo) ──
+const isMobileDevice = window.innerWidth < 768;
+const lenis = isMobileDevice ? null : new Lenis({
   duration: 1.2,
   wheelMultiplier: 1,
   smoothWheel: true,
 });
-gsap.ticker.add((time) => { lenis.raf(time * 1000); });
-gsap.ticker.lagSmoothing(0);
-lenis.on('scroll', ScrollTrigger.update);
+if (lenis) {
+  gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+  gsap.ticker.lagSmoothing(0);
+  lenis.on('scroll', ScrollTrigger.update);
+}
 
 // ── PRELOADER ────────────────────────────────────────────────
 (function initPreloader() {
@@ -4178,11 +4237,11 @@ class ExitIntent {
     this.shown = true;
     sessionStorage.setItem('exit-shown', '1');
     this.popup.classList.add('is-open');
-    lenis.stop();
+    if (lenis) lenis.stop();
   }
   hide() {
     this.popup.classList.remove('is-open');
-    lenis.start();
+    if (lenis) lenis.start();
   }
 }
 new ExitIntent();
@@ -4267,7 +4326,7 @@ new ExitIntent();
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let w, h, particles;
-  const COUNT    = 95;
+  const COUNT    = window.innerWidth < 768 ? 35 : 95;
   const MAX_DIST = 130;
   const PRIMARY  = '171,26,53';
 
@@ -4663,18 +4722,22 @@ function navigateToGracias() {
       .set (bg, { clearProps: 'filter,x' });
   });
 })();
-// ── VIDEO FADE — difuminado suave al salir del hero ──────────
+// ── VIDEO FONDO FIJO + FADE al entrar segunda sección ────────
 (function initVideoFade() {
-  const videoBg = document.querySelector('.hero__video-bg');
-  const hero    = document.querySelector('.hero');
-  if (!videoBg || !hero) return;
+  const videoBg   = document.querySelector('.hero__video-bg');
+  const trigger   = document.querySelector('.pinned-wrap') || document.querySelector('.marquee-section');
+  if (!videoBg || !trigger) return;
 
-  // Scrub: la opacidad baja de 1 a 0 conforme el hero sale por arriba
+  // Hacer el vídeo fijo como el canvas de partículas
+  videoBg.style.position = 'fixed';
+  videoBg.style.zIndex   = '0';
+
+  // Fade rápido al entrar la segunda sección
   ScrollTrigger.create({
-    trigger: hero,
-    start: 'bottom 65%',   // empieza a difuminar cuando el fondo del hero llega al 65% del viewport
-    end:   'bottom 0%',    // totalmente invisible cuando el fondo del hero alcanza el top
-    scrub: 1,
+    trigger: trigger,
+    start: 'top 85%',
+    end:   'top 15%',
+    scrub: 0.4,
     onUpdate: (self) => {
       videoBg.style.opacity = String(1 - self.progress);
     },
@@ -4690,10 +4753,14 @@ function navigateToGracias() {
   const mediaItems = document.querySelectorAll('.pin-video-item');
   if (!slides.length || !mediaItems.length) return;
 
-  // Mover cada demo al final de su slide correspondiente
+  // Mover cada demo antes del btn-primary del slide (o al final si no hay botón)
   mediaItems.forEach((media, i) => {
     media.classList.remove('is-active');
-    if (slides[i]) slides[i].appendChild(media);
+    const slide = slides[i];
+    if (!slide) return;
+    const btn = slide.querySelector('.btn-primary');
+    if (btn) slide.insertBefore(media, btn);
+    else slide.appendChild(media);
   });
 
   // Activar la demo cuando entre en el viewport y desactivar al salir
@@ -4713,36 +4780,8 @@ function navigateToGracias() {
   document.querySelectorAll('.pin-slide .pin-video-item').forEach(v => obs.observe(v));
 })();
 
-// ── MÓVIL: CTA bar — ocultar en la zona del formulario para no tapar ──
-(function initMobileCtaBar() {
-  const bar = document.querySelector('.mobile-cta-bar');
-  if (!bar) return;
-  const form = document.getElementById('contacto') || document.querySelector('.form-section');
-  if (!form) return;
-  const obs = new IntersectionObserver(([entry]) => {
-    bar.style.opacity = entry.isIntersecting ? '0' : '1';
-    bar.style.pointerEvents = entry.isIntersecting ? 'none' : '';
-  }, { threshold: 0.2 });
-  obs.observe(form);
-})();
 </script>
 
-<!-- CTA bar fija inferior — solo visible en móvil (CSS controla display) -->
-<div class="mobile-cta-bar" aria-label="Acciones rápidas">
-  <a href="#contacto" class="mobile-cta-bar__btn mobile-cta-bar__btn--primary">
-    Auditoría Gratuita
-  </a>
-  <a href="https://wa.me/34610385539?text=Hola%2C%20me%20interesa%20la%20Auditor%C3%ADa%20Digital%20Gratuita%20de%20SYSTEM%20AI"
-     class="mobile-cta-bar__btn mobile-cta-bar__btn--wa"
-     target="_blank" rel="noopener noreferrer"
-     aria-label="WhatsApp">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.528 5.855L0 24l6.335-1.508A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.6c-1.991 0-3.849-.552-5.43-1.508l-.39-.232-4.044.963.98-3.944-.253-.405A9.564 9.564 0 012.4 12C2.4 6.699 6.699 2.4 12 2.4S21.6 6.699 21.6 12 17.301 21.6 12 21.6z"/>
-    </svg>
-  </a>
-</div>
 
 </body>
 </html>
-
